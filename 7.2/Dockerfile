@@ -8,7 +8,7 @@ LABEL maintainer="Florian Durano <psykoterro@gmail.com>" \
     org.label-schema.vendor="meg4r0m" \
     org.label-schema.name="php-alpine" \
     org.label-schema.description="small apache-php image based on alpine" \
-    org.label-schema.vcs-url="https://github.com/psykoterro/docker-php-alpine"
+    org.label-schema.vcs-url="https://github.com/psykoterro/docker-alpine-apache"
 
 ARG DOCKER_TIMEZONE=Europe/Paris
 ARG DOCKER_LOCALE=fr_FR.UTF-8
@@ -35,12 +35,12 @@ RUN apk add --no-cache \
     curl
 
 # Install language pack
-RUN apk --no-cache add ca-certificates wget && \
-    wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub && \
-    wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.25-r0/glibc-2.25-r0.apk && \
-    wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.25-r0/glibc-bin-2.25-r0.apk && \
-    wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.25-r0/glibc-i18n-2.25-r0.apk && \
-    apk add glibc-bin-2.25-r0.apk glibc-i18n-2.25-r0.apk glibc-2.25-r0.apk
+RUN apk --no-cache add ca-certificates wget
+RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
+RUN wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.28-r0/glibc-2.28-r0.apk
+RUN wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.28-r0/glibc-bin-2.28-r0.apk
+RUN wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.28-r0/glibc-i18n-2.28-r0.apk
+RUN apk add glibc-bin-2.28-r0.apk glibc-i18n-2.28-r0.apk glibc-2.28-r0.apk
 
 # Iterate through all locale and install it
 # Note that locale -a is not available in alpine linux, use `/usr/glibc-compat/bin/locale -a` instead
@@ -54,7 +54,8 @@ ENV LC_ALL $DOCKER_LOCALE
 ENV LANG $DOCKER_LOCALE
 ENV LANGUAGE $DOCKER_LOCALE
 
-RUN echo "@cast http://php.codecasts.rocks/v3.7/php-7.2" >> /etc/apk/repositories
+RUN echo "@edge-main http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
+    && echo "@edge-community http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
 
 # Apache
 # -----------------------------------------------------------------------------
@@ -64,7 +65,7 @@ RUN apk add --update \
     libxml2-dev \
     apache2-utils \
     apache2-proxy \
-    php7-apache2@cast
+    php7-apache2
 
 # Local user
 # => to try : run container with --user option to set root user id with host user id
@@ -131,7 +132,7 @@ RUN mkdir /root/pre-init.d/
 COPY conf/bootstrap.sh /root/pre-init.d/bootstrap.sh
 RUN chmod 755 /root/pre-init.d/bootstrap.sh
 
-EXPOSE 80 82 443
+EXPOSE 80 82 88 443
 
 WORKDIR /var/www/
 
