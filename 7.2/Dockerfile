@@ -134,7 +134,6 @@ RUN chmod 755 /root/pre-init.d/bootstrap.sh
 
 EXPOSE 80 82 88 443
 
-USER site:site
 WORKDIR /home/site/www/
 
 CMD ["/root/pre-init.d/bootstrap.sh"]
